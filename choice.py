@@ -140,7 +140,10 @@ class PlayerRight(pygame.sprite.Sprite):
         self.rect = pygame.Rect(650, 200, 150, 200)
 
     def update(self, *args):
-        self.image = load_image(players_images("right")[self.j])
+        if args:
+            self.image = load_image(players_images("right")[args[0] % len(players_images("right"))])
+        else:
+            self.image = load_image(players_images("right")[self.j])
 
 
 class StartButton(pygame.sprite.Sprite):
@@ -163,8 +166,19 @@ class BackGround(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
 
 
+class Ball(pygame.sprite.Sprite):
+    image = pygame.transform.scale(load_image('Ball.png'), (50, 50))
+
+    def __init__(self):
+        super().__init__(ball)
+        self.image = Ball.image
+        self.rect = self.image.get_rect()
+        self.rect.x = 600
+        self.rect.y = 350
+
+
 def main_menu():
-    intro_text = ["", "",  "Играть", "Управление", "Разработчики", "Выход"]
+    intro_text = ["Volleyball", "",  "Играть", "Управление", "Разработчики", "Выход"]
     screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
 
@@ -202,12 +216,17 @@ def main_menu():
         for line in intro_text:
             string = font.render(line, 1, pygame.Color("white"))
             intro_rect = string.get_rect()
-            intro_rect.x = 200
+            if line == 'Volleyball':
+                intro_rect.x = 400
+            else:
+                intro_rect.x = 200
             text_coord += 15
             intro_rect.top = text_coord
             text_coord += intro_rect.height
             screen.blit(string, intro_rect)
-
+        player_group_r.update(1)
+        player_group_r.draw(screen)
+        ball.draw(screen)
         clock.tick(30)
         if not pygame.mouse.get_focused():
             all_sprites.update()
@@ -310,8 +329,6 @@ def choice():
                     back.play()
                     pygame.time.delay(100)
                     main_menu()
-                player_group_l.update()
-                player_group_r.update()
             if event.type == pygame.MOUSEMOTION:
                 pygame.mouse.set_visible(0)
                 all_sprites.update(event)
@@ -319,6 +336,8 @@ def choice():
         screen.fill(pygame.Color("white"))
         back_ground.draw(screen)
         back_arrow.draw(screen)
+        player_group_l.update()
+        player_group_r.update()
         player_group_l.draw(screen)
         player_group_r.draw(screen)
         text_coord = 50
@@ -355,7 +374,9 @@ player_group_l = pygame.sprite.Group()
 player_group_r = pygame.sprite.Group()
 back_arrow = pygame.sprite.Group()
 start_button = pygame.sprite.Group()
+ball = pygame.sprite.Group()
 
+ball_obj = Ball()
 back_obj = Arrow()
 marker_obj = MarkerArrow()
 player_l_obj = PlayerLeft()
