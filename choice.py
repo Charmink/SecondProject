@@ -6,7 +6,7 @@ import sys
 
 
 pygame.init()
-size = width, height = 960, 540
+size = width, height = 960, 580
 screen = pygame.display.set_mode(size)
 
 MUSIC = {'fon': "data/" + "fon.mp3", 'switch': "data/" + "switch.wav",
@@ -75,30 +75,30 @@ class MarkerArrow(pygame.sprite.Sprite):
         self.music = True
 
     def update(self, pos):
-        if 200 <= pos[0] <= 450 and 160 <= pos[1] <= 200:
-            if self.rect.y != 165:
-                self.rect.y = 165
+        if 200 <= pos[0] <= 450 and 220 <= pos[1] <= 300:
+            if self.rect.y != 240:
+                self.rect.y = 240
                 self.marker_drawing = True
                 self.music = True
             else:
                 self.music = False
-        elif 200 <= pos[0] <= 450 and 210 <= pos[1] <= 250:
-            if self.rect.y != 215:
-                self.rect.y = 215
+        elif 200 <= pos[0] <= 450 and 300 <= pos[1] <= 380:
+            if self.rect.y != 320:
+                self.rect.y = 320
                 self.marker_drawing = True
                 self.music = True
             else:
                 self.music = False
-        elif 200 <= pos[0] <= 450 and 260 <= pos[1] <= 300:
-            if self.rect.y != 265:
-                self.rect.y = 265
+        elif 200 <= pos[0] <= 450 and 380 <= pos[1] <= 460:
+            if self.rect.y != 400:
+                self.rect.y = 400
                 self.marker_drawing = True
                 self.music = True
             else:
                 self.music = False
-        elif 200 <= pos[0] <= 450 and 310 <= pos[1] <= 350:
-            if self.rect.y != 315:
-                self.rect.y = 315
+        elif 200 <= pos[0] <= 450 and 460 <= pos[1] <= 540:
+            if self.rect.y != 480:
+                self.rect.y = 480
                 self.marker_drawing = True
                 self.music = True
             else:
@@ -111,14 +111,14 @@ class MarkerArrow(pygame.sprite.Sprite):
 
 
 class BackArrow(pygame.sprite.Sprite):
-    image = pygame.transform.scale(load_image("back.png"), (70, 50))
+    image = load_image("back.png")
 
     def __init__(self):
         super().__init__(back_arrow)
         self.image = BackArrow.image
         self.rect = self.image.get_rect()
         self.rect.x = 830
-        self.rect.y = 450
+        self.rect.y = 500
 
 
 class PlayerLeft(pygame.sprite.Sprite):
@@ -126,7 +126,7 @@ class PlayerLeft(pygame.sprite.Sprite):
         super().__init__(player_group_l)
         self.i = 0
         self.image = load_image(players_images("left")[self.i])
-        self.rect = pygame.Rect(150, 200, 150, 200)
+        self.rect = pygame.Rect(150, 250, 150, 200)
 
     def update(self, *args):
         self.image = load_image(players_images("left")[self.i])
@@ -137,7 +137,7 @@ class PlayerRight(pygame.sprite.Sprite):
         super().__init__(player_group_r)
         self.j = 0
         self.image = load_image(players_images("right")[self.j])
-        self.rect = pygame.Rect(650, 200, 150, 200)
+        self.rect = pygame.Rect(650, 250, 150, 200)
 
     def update(self, *args):
         if args:
@@ -154,11 +154,11 @@ class StartButton(pygame.sprite.Sprite):
         self.image = StartButton.image
         self.rect = self.image.get_rect()
         self.rect.x = 400
-        self.rect.y = 200
+        self.rect.y = 250
 
 
 class BackGround(pygame.sprite.Sprite):
-    image = pygame.transform.scale(load_image('start.png'), (960, 540))
+    image = pygame.transform.scale(load_image('start.png'), (960, 580))
 
     def __init__(self):
         super().__init__(back_ground)
@@ -174,11 +174,11 @@ class Ball(pygame.sprite.Sprite):
         self.image = Ball.image
         self.rect = self.image.get_rect()
         self.rect.x = 600
-        self.rect.y = 350
+        self.rect.y = 400
 
 
 def main_menu():
-    intro_text = ["Volleyball", "",  "Играть", "Управление", "Разработчики", "Выход"]
+    intro_text = ["Volleyball", "",  "Play", "Control", "Developers", "Exit"]
     screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
 
@@ -188,17 +188,17 @@ def main_menu():
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if marker_obj.rect.y == 165:
+                    if marker_obj.rect.y == 240:
                         start.play()
                         pygame.time.delay(100)
                         choice()
-                    elif marker_obj.rect.y == 215:
+                    elif marker_obj.rect.y == 320:
                         start.play()
                         control()
-                    elif marker_obj.rect.y == 265:
+                    elif marker_obj.rect.y == 400:
                         start.play()
                         developers()
-                    elif marker_obj.rect.y == 315:
+                    elif marker_obj.rect.y == 480:
                         ex.play()
                         pygame.time.delay(200)
                         terminate()
@@ -206,18 +206,16 @@ def main_menu():
                 pygame.mouse.set_visible(0)
                 all_sprites.update(event)
                 marker.update(event.pos)
-                if marker_obj.music:
-                    choice_hero.play()
 
         screen.fill(pygame.Color("white"))
         back_ground.draw(screen)
         text_coord = 50
-        font = pygame.font.Font(None, 50)
+        font = pygame.font.Font('data/shs.ttf', 50)
         for line in intro_text:
             string = font.render(line, 1, pygame.Color("white"))
             intro_rect = string.get_rect()
             if line == 'Volleyball':
-                intro_rect.x = 400
+                intro_rect.x = 350
             else:
                 intro_rect.x = 200
             text_coord += 15
@@ -241,9 +239,9 @@ def developers():
 
 
 def control():
-    intro_text = ["Назначение клавиш", "", "", "Влево - A / Стрелка влево",
-                  "Вправо - D / Стрелка вправо", "Прыжок - W / Стрелка вверх",
-                  "Удар - Space / Ctrl"]
+    intro_text = ["Control", "", "To the left - A | Left arrow",
+                  "To the right - D | Right arrow", "Jump - W | Up arrow",
+                  "Hit - Space | Ctrl"]
     screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
     while True:
@@ -252,7 +250,8 @@ def control():
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if back_arrow_obj.rect.x <= event.pos[0] <= back_arrow_obj.rect.x + 70 and \
+                    if back_arrow_obj.rect.x - 10 <= event.pos[0] <= \
+                            back_arrow_obj.rect.x + 80 and \
                             back_arrow_obj.rect.y <= event.pos[1] <= back_arrow_obj.rect.y + 50:
                         back.play()
                         pygame.time.delay(100)
@@ -267,14 +266,14 @@ def control():
         back_arrow.draw(screen)
         text_coord = 50
         for line in intro_text:
-            if line == "Назначение клавиш":
-                font = pygame.font.Font(None, 50)
+            if line == "Control":
+                font = pygame.font.Font('data/shs.ttf', 50)
             else:
-                font = pygame.font.Font(None, 40)
+                font = pygame.font.Font('data/shs.ttf', 40)
             string = font.render(line, 1, pygame.Color("white"))
             intro_rect = string.get_rect()
-            if line == "Назначение клавиш":
-                intro_rect.x = 300
+            if line == "Control":
+                intro_rect.x = 400
             else:
                 intro_rect.x = 200
             text_coord += 15
@@ -290,8 +289,8 @@ def control():
 
 
 def choice():
-    intro_text = ["Выбор персонажей", "",
-                  'Player - 1                                              Player - 2']
+    intro_text = ["Choice heroes", "",
+                  'First player                         Second player']
     screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
 
@@ -321,10 +320,11 @@ def choice():
                         choice_hero.play()
                 elif event.button == 1 and \
                     start_button_obj.rect.x <= event.pos[0] <= start_button_obj.rect.x + 150 and \
-                        start_button_obj.rect.y <= event.pos[1] <= start_button_obj.rect.y + 200:
+                        start_button_obj.rect.y <= event.pos[1] <= start_button_obj.rect.y + 150:
                     start.play()
                 elif event.button == 1 and \
-                        back_arrow_obj.rect.x <= event.pos[0] <= back_arrow_obj.rect.x + 70 and \
+                        back_arrow_obj.rect.x - 10 <= event.pos[0] <= \
+                        back_arrow_obj.rect.x + 80 and \
                         back_arrow_obj.rect.y <= event.pos[1] <= back_arrow_obj.rect.y + 50:
                     back.play()
                     pygame.time.delay(100)
@@ -342,10 +342,10 @@ def choice():
         player_group_r.draw(screen)
         text_coord = 50
         for line in intro_text:
-            if line == "Выбор персонажей":
-                font = pygame.font.Font(None, 50)
+            if line == "Choice heroes":
+                font = pygame.font.Font('data/shs.ttf', 50)
             else:
-                font = pygame.font.Font(None, 40)
+                font = pygame.font.Font('data/shs.ttf', 30)
             string = font.render(line, 1, pygame.Color("white"))
             intro_rect = string.get_rect()
             text_coord += 10
@@ -390,7 +390,7 @@ pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.1)
 
 choice_hero = pygame.mixer.Sound(MUSIC['switch'])
-choice_hero.set_volume(0.1)
+choice_hero.set_volume(0.3)
 
 start = pygame.mixer.Sound(MUSIC['play'])
 start.set_volume(0.1)
