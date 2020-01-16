@@ -131,6 +131,22 @@ class PlayerLeft(pygame.sprite.Sprite):
     def update(self, *args):
         self.image = load_image(players_images("left")[self.i])
 
+    def move(self, duration):
+        if duration == 0:
+            self.rect = self.rect.move(1, 0)
+
+        elif duration == 2:
+            self.rect = self.rect.move(-1, 0)
+
+    def jump(self, duration):
+        if duration == 1:
+            self.rect = self.rect.move(0, -1)
+        else:
+            self.rect = self.rect.move(0, 1)
+
+    def position(self):
+        return self.rect.x, self.rect.y
+
 
 class PlayerRight(pygame.sprite.Sprite):
     def __init__(self):
@@ -144,6 +160,22 @@ class PlayerRight(pygame.sprite.Sprite):
             self.image = load_image(players_images("right")[args[0] % len(players_images("right"))])
         else:
             self.image = load_image(players_images("right")[self.j])
+
+    def move(self, duration):
+        if duration == 0:
+            self.rect = self.rect.move(1, 0)
+
+        elif duration == 2:
+            self.rect = self.rect.move(-1, 0)
+
+    def jump(self, duration):
+        if duration == 1:
+            self.rect = self.rect.move(0, -1)
+        else:
+            self.rect = self.rect.move(0, 1)
+
+    def position(self):
+        return self.rect.x, self.rect.y
 
 
 class StartButton(pygame.sprite.Sprite):
@@ -175,6 +207,106 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = 600
         self.rect.y = 400
+        self.count_st = 0
+
+    def start(self):
+        self.count_st += 1
+        if self.count_st % 2 == 1:
+            self.rect.x = 700
+            self.rect.y = 200
+        else:
+            self.rect.x = 200
+            self.rect.y = 200
+
+    def position(self):
+        return self.rect.x, self.rect.y
+
+    def shot1(self, key):
+        if key == 1:
+            if self.rect.x <= 300:
+                self.rect = self.rect.move(3, -1)
+                self.rect = self.rect.move(1, 0)
+            elif self.rect.x <= 500:
+                self.rect = self.rect.move(2, -1)
+                self.rect = self.rect.move(1, 0)
+            elif self.rect.x <= 540:
+                self.rect = self.rect.move(1, 0)
+                self.rect = self.rect.move(1, 0)
+            elif self.rect.x <= 700:
+                self.rect = self.rect.move(2, 1)
+                self.rect = self.rect.move(1, 0)
+            else:
+                self.rect = self.rect.move(2, 2)
+                self.rect = self.rect.move(1, 0)
+        if key == 2:
+            if self.rect.x > 700:
+                self.rect = self.rect.move(-3, -1)
+                self.rect = self.rect.move(-1, 0)
+            elif self.rect.x > 500:
+                self.rect = self.rect.move(-2, -1)
+                self.rect = self.rect.move(-1, 0)
+            elif 500 < self.rect.x <= 540:
+                self.rect = self.rect.move(-1, 0)
+                self.rect = self.rect.move(-1, 0)
+            elif 300 < self.rect.x <= 500:
+                self.rect = self.rect.move(-2, 1)
+                self.rect = self.rect.move(-1, 0)
+            elif self.rect.x < 300:
+                self.rect = self.rect.move(-2, 2)
+                self.rect = self.rect.move(-1, 0)
+
+    def shot2(self, key, ballstart):
+        if key == 1:
+            if self.rect.x < ballstart + 250:
+                self.rect = self.rect.move(3, -1)
+                self.rect = self.rect.move(1, 0)
+            elif self.rect.x < ballstart + 270:
+                self.rect = self.rect.move(5, -1)
+            elif self.rect.x < ballstart + 300:
+                self.rect = self.rect.move(1, 0)
+                self.rect = self.rect.move(1, 0)
+            else:
+                self.rect = self.rect.move(2, +2)
+                self.rect = self.rect.move(1, 0)
+        if key == 2:
+            if self.rect.x > ballstart - 250:
+                self.rect = self.rect.move(-3, -1)
+                self.rect = self.rect.move(-1, 0)
+            elif self.rect.x > ballstart - 280:
+                self.rect = self.rect.move(-5, -1)
+            elif self.rect.x > ballstart - 300:
+                self.rect = self.rect.move(-1, 0)
+                self.rect = self.rect.move(-1, 0)
+            else:
+                self.rect = self.rect.move(-2, 2)
+                self.rect = self.rect.move(-1, 0)
+
+    def shot3(self, key, ballstart):
+        polet = random.randrange(280, 310)
+        if key == 1:
+            if self.rect.x < ballstart + polet:
+                self.rect = self.rect.move(2, -1)
+                self.rect = self.rect.move(1, 0)
+            elif self.rect.x < ballstart + polet + 30:
+                self.rect = self.rect.move(5, -1)
+            elif self.rect.x < ballstart + polet + 50:
+                self.rect = self.rect.move(1, 0)
+                self.rect = self.rect.move(1, 0)
+            else:
+                self.rect = self.rect.move(2, +2)
+                self.rect = self.rect.move(1, 0)
+        if key == 2:
+            if self.rect.x > ballstart - polet:
+                self.rect = self.rect.move(-2, -1)
+                self.rect = self.rect.move(-1, 0)
+            elif self.rect.x > ballstart - polet - 30:
+                self.rect = self.rect.move(-5, -1)
+            elif self.rect.x > ballstart - polet - 50:
+                self.rect = self.rect.move(-1, 0)
+                self.rect = self.rect.move(-1, 0)
+            else:
+                self.rect = self.rect.move(-2, 2)
+                self.rect = self.rect.move(-1, 0)
 
 
 def main_menu():
@@ -322,6 +454,7 @@ def choice():
                     start_button_obj.rect.x <= event.pos[0] <= start_button_obj.rect.x + 150 and \
                         start_button_obj.rect.y <= event.pos[1] <= start_button_obj.rect.y + 150:
                     start.play()
+                    game()
                 elif event.button == 1 and \
                         back_arrow_obj.rect.x - 10 <= event.pos[0] <= \
                         back_arrow_obj.rect.x + 80 and \
@@ -362,6 +495,153 @@ def choice():
         if not pygame.mouse.get_focused():
             all_sprites.update()
         all_sprites.draw(screen)
+        pygame.display.flip()
+
+
+def game():
+    clock = pygame.time.Clock()
+    ball_obj.start()
+    key = False
+    key2 = False
+    jump = False
+    jump2 = False
+    shot = -1
+    ball_key = None
+    k = None
+    k2 = None
+    ballstart = None
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    key = 0
+                    player_r_obj.move(0)
+                elif event.key == pygame.K_LEFT:
+                    key = 2
+                    player_r_obj.move(2)
+                elif event.key == pygame.K_UP:
+                    if not jump:
+                        k = 0
+                        jump = True
+                if event.key == pygame.K_d:
+                    key2 = 0
+                    player_l_obj.move(0)
+                elif event.key == pygame.K_a:
+                    key2 = 2
+                    player_l_obj.move(2)
+                elif event.key == pygame.K_w:
+                    if not jump2:
+                        k2 = 0
+                        jump2 = True
+                if event.key == pygame.K_SPACE:
+                    a, b = player_l_obj.position()
+                    ab, bb = ball_obj.position()
+                    print(a, b, ab, bb)
+                    if abs(a + 50 - ab) <= 50 and abs(b + 100 - bb) <= 150:
+                        ballstart = ab
+                        shot = random.choice(range(3))
+                        ball_key = 1
+
+                if event.key == 305:
+                    a, b = player_r_obj.position()
+                    ab, bb = ball_obj.position()
+                    print(a, b, ab, bb)
+                    if abs(a + 50 - ab) <= 50 and abs(b + 100 - bb) <= 150:
+                        ballstart = ab
+                        shot = random.choice(range(3))
+                        ball_key = 2
+
+            if event.type == pygame.KEYUP:
+                if (event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT) \
+                        and pygame.key.get_pressed()[275] == 0 and \
+                        pygame.key.get_pressed()[276] == 0:
+                    key = False
+                if (event.key == 100 or event.key == 97) \
+                        and pygame.key.get_pressed()[97] == 0 and \
+                        pygame.key.get_pressed()[100] == 0:
+                    key2 = False
+
+        if shot == 0:
+            if ball_key == 1:
+                ab, bb = ball_obj.position()
+                if bb <= 450:
+                    ball_obj.shot1(1)
+                else:
+                    ball_key = 0
+            ab, bb = ball_obj.position()
+            if ball_key == 2:
+                ab, bb = ball_obj.position()
+                if bb <= 450:
+                    ball_obj.shot1(2)
+                else:
+                    ball_key = 0
+        if shot == 1:
+            if ball_key == 1:
+                ab, bb = ball_obj.position()
+                if bb <= 450:
+                    ball_obj.shot2(1, ballstart)
+                else:
+                    ball_key = 0
+            ab, bb = ball_obj.position()
+            if ball_key == 2:
+                ab, bb = ball_obj.position()
+                if bb <= 450:
+                    ball_obj.shot2(2, ballstart)
+                else:
+                    ball_key = 0
+        if shot == 2:
+            if ball_key == 1:
+                ab, bb = ball_obj.position()
+                if bb <= 450:
+                    ball_obj.shot3(1, ballstart)
+                else:
+                    ball_key = 0
+            ab, bb = ball_obj.position()
+            if ball_key == 2:
+                ab, bb = ball_obj.position()
+                if bb <= 450:
+                    ball_obj.shot3(2, ballstart)
+                else:
+                    ball_key = 0
+        ab, bb = ball_obj.position()
+
+        if bb >= 450:
+            ball_key = 0
+            clock.tick(5)
+            clock.tick(5)
+            ball_obj.start()
+        if jump:
+            if k < 50:
+                player_r_obj.jump(1)
+            else:
+                player_r_obj.jump(2)
+            k += 1
+            if k == 100:
+                jump = False
+                k = 0
+        # Прыжок второго игрока
+        if jump2:
+            if k2 < 50:
+                player_l_obj.jump(1)
+            else:
+                player_l_obj.jump(2)
+            k2 += 1
+            if k2 == 100:
+                jump2 = False
+                k2 = 0
+
+        if key is not False:
+            player_r_obj.move(key)
+        if key2 is not False:
+            player_l_obj.move(key2)
+        screen.fill(pygame.Color("white"))
+        back_ground.draw(screen)
+        player_group_l.draw(screen)
+        player_group_r.draw(screen)
+        ball.draw(screen)
+        clock.tick(50)
         pygame.display.flip()
 
 
