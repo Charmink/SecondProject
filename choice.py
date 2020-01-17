@@ -12,6 +12,7 @@ screen = pygame.display.set_mode(size)
 MUSIC = {'fon': "data/" + "fon.mp3", 'switch': "data/" + "switch.wav",
          'play': "data/" + "play.wav", 'back': "data/" + "back.wav",
          'exit': "data/" + "exit.wav"}
+GRAVITY = 0.25
 
 
 def load_image(name, colorkey=None):
@@ -309,6 +310,80 @@ class Ball(pygame.sprite.Sprite):
                 self.rect = self.rect.move(-1, 0)
 
 
+class Sound(pygame.sprite.Sprite):
+    image_1 = load_image('sound.png')
+    image_2 = load_image('sound_mute.png')
+
+    def __init__(self):
+        super().__init__(sound)
+        self.image = Sound.image_1
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(900, 30)
+        self.cnt = 1
+
+    def update(self):
+        self.cnt = (self.cnt + 1) % 2
+        if not self.cnt:
+            self.image = Sound.image_2
+        else:
+            self.image = Sound.image_1
+
+
+screen_rect = (0, 0, width, height)
+
+
+class Particle(pygame.sprite.Sprite):
+
+    fire = [load_image("star.png")]
+    for scale in (5, 10, 20):
+        fire.append(pygame.transform.scale(fire[0], (scale, scale)))
+
+    def __init__(self, pos, dx, dy):
+        super().__init__(salut)
+        self.image = random.choice(self.fire)
+        self.rect = self.image.get_rect()
+
+        self.velocity = [dx, dy]
+        self.rect.x, self.rect.y = pos
+
+        self.gravity = GRAVITY
+
+    def update(self):
+        # применяем гравитационный эффект:
+        # движение с ускорением под действием гравитации
+        self.velocity[1] += self.gravity
+        # перемещаем частицу
+        self.rect.x += self.velocity[0]
+        self.rect.y += self.velocity[1]
+        # убиваем, если частица ушла за экран
+        if not self.rect.colliderect(screen_rect):
+            self.kill()
+
+
+def create_particles(position, period):
+    if period != 1:
+        return
+    particle_count = 20
+    numbers = range(-5, 6)
+    for _ in range(particle_count):
+        Particle(position, random.choice(numbers), random.choice(numbers))
+
+
+def mute():
+    if sound_obj.cnt:
+        pygame.mixer.music.set_volume(0.1)
+        choice_hero.set_volume(0.3)
+        start.set_volume(0.1)
+        back.set_volume(0.6)
+        ex.set_volume(0.4)
+    else:
+        pygame.mixer.music.set_volume(0)
+        choice_hero.set_volume(0)
+        start.set_volume(0)
+        back.set_volume(0)
+        ex.set_volume(0)
+
+
 def main_menu():
     intro_text = ["Volleyball", "",  "Play", "Control", "Developers", "Exit"]
     screen.fill(pygame.Color("white"))
@@ -334,6 +409,9 @@ def main_menu():
                         ex.play()
                         pygame.time.delay(200)
                         terminate()
+                    elif 885 < event.pos[0] < 920 and 20 < event.pos[1] < 55:
+                        sound.update()
+                        mute()
             if event.type == pygame.MOUSEMOTION:
                 pygame.mouse.set_visible(0)
                 all_sprites.update(event)
@@ -357,6 +435,7 @@ def main_menu():
         player_group_r.update(1)
         player_group_r.draw(screen)
         ball.draw(screen)
+        sound.draw(screen)
         clock.tick(30)
         if not pygame.mouse.get_focused():
             all_sprites.update()
@@ -388,6 +467,9 @@ def control():
                         back.play()
                         pygame.time.delay(100)
                         main_menu()
+                    elif 885 < event.pos[0] < 920 and 20 < event.pos[1] < 55:
+                        sound.update()
+                        mute()
             if event.type == pygame.MOUSEMOTION:
                 pygame.mouse.set_visible(0)
                 all_sprites.update(event)
@@ -396,6 +478,7 @@ def control():
         screen.fill(pygame.Color("white"))
         back_ground.draw(screen)
         back_arrow.draw(screen)
+        sound.draw(screen)
         text_coord = 50
         for line in intro_text:
             if line == "Control":
@@ -462,6 +545,9 @@ def choice():
                     back.play()
                     pygame.time.delay(100)
                     main_menu()
+                elif event.button == 1 and 885 < event.pos[0] < 920 and 20 < event.pos[1] < 55:
+                    sound.update()
+                    mute()
             if event.type == pygame.MOUSEMOTION:
                 pygame.mouse.set_visible(0)
                 all_sprites.update(event)
@@ -473,6 +559,7 @@ def choice():
         player_group_r.update()
         player_group_l.draw(screen)
         player_group_r.draw(screen)
+        sound.draw(screen)
         text_coord = 50
         for line in intro_text:
             if line == "Choice heroes":
@@ -655,6 +742,9 @@ player_group_r = pygame.sprite.Group()
 back_arrow = pygame.sprite.Group()
 start_button = pygame.sprite.Group()
 ball = pygame.sprite.Group()
+sound = pygame.sprite.Group()
+salut = pygame.sprite.Group()
+
 
 ball_obj = Ball()
 back_obj = Arrow()
@@ -664,6 +754,7 @@ player_r_obj = PlayerRight()
 back_arrow_obj = BackArrow()
 start_button_obj = StartButton()
 back_ground_obj = BackGround()
+sound_obj = Sound()
 
 pygame.mixer.music.load(MUSIC['fon'])
 pygame.mixer.music.play(-1)
@@ -683,4 +774,3 @@ ex.set_volume(0.4)
 
 main_menu()
 running = True
-
