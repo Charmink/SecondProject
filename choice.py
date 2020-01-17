@@ -11,7 +11,7 @@ screen = pygame.display.set_mode(size)
 
 MUSIC = {'fon': "data/" + "fon.mp3", 'switch': "data/" + "switch.wav",
          'play': "data/" + "play.wav", 'back': "data/" + "back.wav",
-         'exit': "data/" + "exit.wav"}
+         'exit': "data/" + "exit.wav", "vika": "data/vika.mp3"}
 GRAVITY = 0.25
 
 
@@ -334,8 +334,8 @@ screen_rect = (0, 0, width, height)
 
 class Particle(pygame.sprite.Sprite):
 
-    fire = [load_image("star.png")]
-    for scale in (5, 10, 20):
+    fire = [pygame.transform.scale(load_image("star.png"), (20, 20))]
+    for scale in (5, 10, 20, 30):
         fire.append(pygame.transform.scale(fire[0], (scale, scale)))
 
     def __init__(self, pos, dx, dy):
@@ -349,19 +349,26 @@ class Particle(pygame.sprite.Sprite):
         self.gravity = GRAVITY
 
     def update(self):
-        # применяем гравитационный эффект:
-        # движение с ускорением под действием гравитации
         self.velocity[1] += self.gravity
-        # перемещаем частицу
         self.rect.x += self.velocity[0]
         self.rect.y += self.velocity[1]
-        # убиваем, если частица ушла за экран
         if not self.rect.colliderect(screen_rect):
             self.kill()
 
 
+class Winner(pygame.sprite.Sprite):
+    def __init__(self, image):
+        super().__init__(winner)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(400, 200)
+
+    def update(self, image):
+        self.image = image
+
+
 def create_particles(position, period):
-    if period != 1:
+    if period != 0:
         return
     particle_count = 20
     numbers = range(-5, 6)
@@ -446,14 +453,57 @@ def main_menu():
 
 
 def developers():
-    pass
+    intro_text = ["Not the most talented developers worked on the creation of the",
+                  "game, but still the developers:",
+                  "Sokolov Nikita Vitalievich - https://vk.com/thenimals",
+                  "Murtazin Ruslan Yurievich - https://vk.com/id362892658"]
+    clock = pygame.time.Clock()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if back_arrow_obj.rect.x - 10 <= event.pos[0] <= \
+                            back_arrow_obj.rect.x + 80 and \
+                            back_arrow_obj.rect.y <= event.pos[1] <= back_arrow_obj.rect.y + 50:
+                        back.play()
+                        pygame.time.delay(100)
+                        main_menu()
+                    elif 885 < event.pos[0] < 920 and 20 < event.pos[1] < 55:
+                        sound.update()
+                        mute()
+            if event.type == pygame.MOUSEMOTION:
+                pygame.mouse.set_visible(0)
+                all_sprites.update(event)
+                marker.update(event.pos)
+
+        screen.fill(pygame.Color("white"))
+        back_ground.draw(screen)
+        back_arrow.draw(screen)
+        sound.draw(screen)
+        text_coord = 100
+        for line in intro_text:
+            font = pygame.font.Font(None, 40)
+            string = font.render(line, 1, pygame.Color("white"))
+            intro_rect = string.get_rect()
+            intro_rect.x = 50
+            text_coord += 15
+            intro_rect.top = text_coord
+            text_coord += intro_rect.height
+            screen.blit(string, intro_rect)
+
+        clock.tick(30)
+        if not pygame.mouse.get_focused():
+            all_sprites.update()
+        all_sprites.draw(screen)
+        pygame.display.flip()
 
 
 def control():
     intro_text = ["Control", "", "To the left - A | Left arrow",
                   "To the right - D | Right arrow", "Jump - W | Up arrow",
                   "Hit - Space | Ctrl"]
-    screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
     while True:
         for event in pygame.event.get():
@@ -508,6 +558,10 @@ def choice():
                   'First player                         Second player']
     screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
+
+    pygame.mixer.music.load(MUSIC['fon'])
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.1)
 
     while True:
         for event in pygame.event.get():
@@ -732,6 +786,57 @@ def game():
         pygame.display.flip()
 
 
+def win_screen(image):
+    pygame.mixer.music.load(MUSIC['vika'])
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(0.5)
+    intro_text = ["The winner is"]
+    clock = pygame.time.Clock()
+    period = 0
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if back_arrow_obj.rect.x - 10 <= event.pos[0] \
+                            <= back_arrow_obj.rect.x + 80 and \
+                            back_arrow_obj.rect.y <= event.pos[1] <= back_arrow_obj.rect.y + 50:
+                        back.play()
+                        pygame.time.delay(100)
+                        choice()
+            if event.type == pygame.MOUSEMOTION:
+                pygame.mouse.set_visible(0)
+                all_sprites.update(event)
+                marker.update(event.pos)
+
+        screen.fill(pygame.Color("white"))
+        back_ground.draw(screen)
+        back_arrow.draw(screen)
+        winner.update(image)
+        winner.draw(screen)
+        period = (period + 1) % 5
+        create_particles((random.randrange(0, 960), 20), period)
+        salut.draw(screen)
+        salut.update()
+        text_coord = 50
+        for line in intro_text:
+            font = pygame.font.Font('data/shs.ttf', 50)
+            string = font.render(line, 1, pygame.Color("white"))
+            intro_rect = string.get_rect()
+            intro_rect.x = 350
+            text_coord += 15
+            intro_rect.top = text_coord
+            text_coord += intro_rect.height
+            screen.blit(string, intro_rect)
+
+        clock.tick(30)
+        if not pygame.mouse.get_focused():
+            all_sprites.update()
+        all_sprites.draw(screen)
+        pygame.display.flip()
+
+
 player = None
 back_ground = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
@@ -744,6 +849,7 @@ start_button = pygame.sprite.Group()
 ball = pygame.sprite.Group()
 sound = pygame.sprite.Group()
 salut = pygame.sprite.Group()
+winner = pygame.sprite.Group()
 
 
 ball_obj = Ball()
@@ -755,6 +861,7 @@ back_arrow_obj = BackArrow()
 start_button_obj = StartButton()
 back_ground_obj = BackGround()
 sound_obj = Sound()
+winner_obj = Winner(player_l_obj.image)
 
 pygame.mixer.music.load(MUSIC['fon'])
 pygame.mixer.music.play(-1)
