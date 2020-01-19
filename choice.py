@@ -11,7 +11,8 @@ screen = pygame.display.set_mode(size)
 
 MUSIC = {'fon': "data/" + "fon.mp3", 'switch': "data/" + "switch.wav",
          'play': "data/" + "play.wav", 'back': "data/" + "back.wav",
-         'exit': "data/" + "exit.wav", "vika": "data/vika.mp3"}
+         'exit': "data/" + "exit.wav", "vika": "data/vika.mp3",
+         "shot": "data/shot.wav"}
 GRAVITY = 0.25
 
 
@@ -61,6 +62,20 @@ class Arrow(pygame.sprite.Sprite):
         else:
             self.rect.x = width
             self.rect.y = height
+
+
+class Setka(pygame.sprite.Sprite):
+    image = pygame.transform.scale(load_image('setka.png'), (100, 600))
+
+    def __init__(self):
+        super().__init__(setka)
+        self.rect = self.image.get_rect()
+        self.rect.x = 900
+        self.rect.y = 889
+
+    def start(self):
+        self.rect.x = 450
+        self.rect.y = 80
 
 
 class MarkerArrow(pygame.sprite.Sprite):
@@ -129,14 +144,17 @@ class PlayerLeft(pygame.sprite.Sprite):
         self.image = load_image(players_images("left")[self.i])
         self.rect = pygame.Rect(150, 250, 150, 200)
 
+    def im(self):
+        return self.image
+
     def update(self, *args):
         self.image = load_image(players_images("left")[self.i])
 
     def move(self, duration):
-        if duration == 0:
-            self.rect = self.rect.move(1, 0)
-
-        elif duration == 2:
+        if self.rect.x <= 400:
+            if duration == 0:
+                self.rect = self.rect.move(1, 0)
+        if duration == 2:
             self.rect = self.rect.move(-1, 0)
 
     def jump(self, duration):
@@ -144,6 +162,9 @@ class PlayerLeft(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, -1)
         else:
             self.rect = self.rect.move(0, 1)
+
+    def back(self):
+        self.rect = pygame.Rect(150, 250, 150, 200)
 
     def position(self):
         return self.rect.x, self.rect.y
@@ -156,6 +177,9 @@ class PlayerRight(pygame.sprite.Sprite):
         self.image = load_image(players_images("right")[self.j])
         self.rect = pygame.Rect(650, 250, 150, 200)
 
+    def im(self):
+        return self.image
+
     def update(self, *args):
         if args:
             self.image = load_image(players_images("right")[args[0] % len(players_images("right"))])
@@ -165,9 +189,9 @@ class PlayerRight(pygame.sprite.Sprite):
     def move(self, duration):
         if duration == 0:
             self.rect = self.rect.move(1, 0)
-
-        elif duration == 2:
-            self.rect = self.rect.move(-1, 0)
+        if self.rect.x >= 450:
+            if duration == 2:
+                self.rect = self.rect.move(-1, 0)
 
     def jump(self, duration):
         if duration == 1:
@@ -177,6 +201,9 @@ class PlayerRight(pygame.sprite.Sprite):
 
     def position(self):
         return self.rect.x, self.rect.y
+
+    def back(self):
+        self.rect = pygame.Rect(650, 250, 150, 200)
 
 
 class StartButton(pygame.sprite.Sprite):
@@ -192,10 +219,11 @@ class StartButton(pygame.sprite.Sprite):
 
 class BackGround(pygame.sprite.Sprite):
     image = pygame.transform.scale(load_image('start.png'), (960, 580))
+    image_1 = pygame.transform.scale(load_image("bitch.jpg"), (960, 580))
 
     def __init__(self):
         super().__init__(back_ground)
-        self.image = BackGround.image
+        self.image = BackGround.image_1
         self.rect = self.image.get_rect()
 
 
@@ -219,40 +247,39 @@ class Ball(pygame.sprite.Sprite):
             self.rect.x = 200
             self.rect.y = 200
 
+    def update(self):
+        self.rect.x = 600
+        self.rect.y = 400
+
+    def fall(self):
+        self.rect = self.rect.move(0, 3)
+
     def position(self):
         return self.rect.x, self.rect.y
 
-    def shot1(self, key):
+    def shot1(self, key, ballstart):
         if key == 1:
-            if self.rect.x <= 300:
+            if self.rect.x < ballstart + 230:
                 self.rect = self.rect.move(3, -1)
                 self.rect = self.rect.move(1, 0)
-            elif self.rect.x <= 500:
-                self.rect = self.rect.move(2, -1)
+            elif self.rect.x < ballstart + 250:
+                self.rect = self.rect.move(5, -1)
+            elif self.rect.x < ballstart + 280:
                 self.rect = self.rect.move(1, 0)
-            elif self.rect.x <= 540:
-                self.rect = self.rect.move(1, 0)
-                self.rect = self.rect.move(1, 0)
-            elif self.rect.x <= 700:
-                self.rect = self.rect.move(2, 1)
                 self.rect = self.rect.move(1, 0)
             else:
-                self.rect = self.rect.move(2, 2)
+                self.rect = self.rect.move(2, +2)
                 self.rect = self.rect.move(1, 0)
         if key == 2:
-            if self.rect.x > 700:
+            if self.rect.x > ballstart - 230:
                 self.rect = self.rect.move(-3, -1)
                 self.rect = self.rect.move(-1, 0)
-            elif self.rect.x > 500:
-                self.rect = self.rect.move(-2, -1)
+            elif self.rect.x > ballstart - 250:
+                self.rect = self.rect.move(-5, -1)
+            elif self.rect.x > ballstart - 280:
                 self.rect = self.rect.move(-1, 0)
-            elif 500 < self.rect.x <= 540:
                 self.rect = self.rect.move(-1, 0)
-                self.rect = self.rect.move(-1, 0)
-            elif 300 < self.rect.x <= 500:
-                self.rect = self.rect.move(-2, 1)
-                self.rect = self.rect.move(-1, 0)
-            elif self.rect.x < 300:
+            else:
                 self.rect = self.rect.move(-2, 2)
                 self.rect = self.rect.move(-1, 0)
 
@@ -439,8 +466,11 @@ def main_menu():
             intro_rect.top = text_coord
             text_coord += intro_rect.height
             screen.blit(string, intro_rect)
+        player_l_obj.back()
+        player_r_obj.back()
         player_group_r.update(1)
         player_group_r.draw(screen)
+        ball.update()
         ball.draw(screen)
         sound.draw(screen)
         clock.tick(30)
@@ -609,6 +639,8 @@ def choice():
         screen.fill(pygame.Color("white"))
         back_ground.draw(screen)
         back_arrow.draw(screen)
+        player_l_obj.back()
+        player_r_obj.back()
         player_group_l.update()
         player_group_r.update()
         player_group_l.draw(screen)
@@ -642,6 +674,7 @@ def choice():
 def game():
     clock = pygame.time.Clock()
     ball_obj.start()
+    setka_obj.start()
     key = False
     key2 = False
     jump = False
@@ -650,11 +683,25 @@ def game():
     ball_key = None
     k = None
     k2 = None
+    points_r = points_l = 0
     ballstart = None
+    ydar_key = False
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.MOUSEMOTION:
+                pygame.mouse.set_visible(0)
+                all_sprites.update(event)
+                marker.update(event.pos)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1 and back_arrow_obj.rect.x - 10 <= event.pos[0] <= \
+                        back_arrow_obj.rect.x + 80 and \
+                        back_arrow_obj.rect.y <= event.pos[1] <= back_arrow_obj.rect.y + 50:
+                    back.play()
+                    pygame.time.delay(100)
+                    choice()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
                     key = 0
@@ -676,7 +723,9 @@ def game():
                     if not jump2:
                         k2 = 0
                         jump2 = True
+
                 if event.key == pygame.K_SPACE:
+                    ydar_key = True
                     a, b = player_l_obj.position()
                     ab, bb = ball_obj.position()
                     print(a, b, ab, bb)
@@ -684,15 +733,17 @@ def game():
                         ballstart = ab
                         shot = random.choice(range(3))
                         ball_key = 1
+                        shot_sound.play()
 
                 if event.key == 305:
+                    ydar_key = True
                     a, b = player_r_obj.position()
                     ab, bb = ball_obj.position()
-                    print(a, b, ab, bb)
                     if abs(a + 50 - ab) <= 50 and abs(b + 100 - bb) <= 150:
                         ballstart = ab
                         shot = random.choice(range(3))
                         ball_key = 2
+                        shot_sound.play()
 
             if event.type == pygame.KEYUP:
                 if (event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT) \
@@ -703,29 +754,32 @@ def game():
                         and pygame.key.get_pressed()[97] == 0 and \
                         pygame.key.get_pressed()[100] == 0:
                     key2 = False
-
+        ab, bb = ball_obj.position()
+        if ab in range(440, 490) and bb > 240:
+            ball_obj.fall()
+            ball_key = 0
         if shot == 0:
+            ydar_key = False
             if ball_key == 1:
                 ab, bb = ball_obj.position()
                 if bb <= 450:
-                    ball_obj.shot1(1)
+                    ball_obj.shot1(1, ballstart)
                 else:
                     ball_key = 0
-            ab, bb = ball_obj.position()
             if ball_key == 2:
                 ab, bb = ball_obj.position()
                 if bb <= 450:
-                    ball_obj.shot1(2)
+                    ball_obj.shot1(2, ballstart)
                 else:
                     ball_key = 0
         if shot == 1:
+            ydar_key = False
             if ball_key == 1:
                 ab, bb = ball_obj.position()
                 if bb <= 450:
                     ball_obj.shot2(1, ballstart)
                 else:
                     ball_key = 0
-            ab, bb = ball_obj.position()
             if ball_key == 2:
                 ab, bb = ball_obj.position()
                 if bb <= 450:
@@ -733,13 +787,14 @@ def game():
                 else:
                     ball_key = 0
         if shot == 2:
+            ydar_key = False
             if ball_key == 1:
+
                 ab, bb = ball_obj.position()
                 if bb <= 450:
                     ball_obj.shot3(1, ballstart)
                 else:
                     ball_key = 0
-            ab, bb = ball_obj.position()
             if ball_key == 2:
                 ab, bb = ball_obj.position()
                 if bb <= 450:
@@ -747,8 +802,16 @@ def game():
                 else:
                     ball_key = 0
         ab, bb = ball_obj.position()
-
+        if ab in range(-5, 5) or ab in range(906, 911) and not ydar_key:
+            ball_obj.fall()
+            shot = 100
+        ab, bb = ball_obj.position()
         if bb >= 450:
+            if ab < 465:
+                points_r += 1
+            else:
+                points_l += 1
+            print(points_l, points_r)
             ball_key = 0
             clock.tick(5)
             clock.tick(5)
@@ -777,12 +840,23 @@ def game():
             player_r_obj.move(key)
         if key2 is not False:
             player_l_obj.move(key2)
+        print(points_l, points_r)
+        if points_l == 3:
+            win_screen(player_l_obj.im())
+        if points_r == 3:
+            print(1)
+            win_screen(player_r_obj.im())
         screen.fill(pygame.Color("white"))
         back_ground.draw(screen)
         player_group_l.draw(screen)
         player_group_r.draw(screen)
         ball.draw(screen)
-        clock.tick(50)
+        setka.draw(screen)
+        back_arrow.draw(screen)
+        if not pygame.mouse.get_focused():
+            all_sprites.update()
+        all_sprites.draw(screen)
+        clock.tick(80)
         pygame.display.flip()
 
 
@@ -850,7 +924,9 @@ ball = pygame.sprite.Group()
 sound = pygame.sprite.Group()
 salut = pygame.sprite.Group()
 winner = pygame.sprite.Group()
+setka = pygame.sprite.Group()
 
+setka_obj = Setka()
 
 ball_obj = Ball()
 back_obj = Arrow()
@@ -878,6 +954,9 @@ back.set_volume(0.6)
 
 ex = pygame.mixer.Sound(MUSIC['exit'])
 ex.set_volume(0.4)
+
+shot_sound = pygame.mixer.Sound(MUSIC["shot"])
+shot_sound.set_volume(0.5)
 
 main_menu()
 running = True
