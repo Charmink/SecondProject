@@ -171,6 +171,8 @@ class PlayerLeft(pygame.sprite.Sprite):
 
 
 class PlayerRight(pygame.sprite.Sprite):
+    image = load_image("rik_win.png")
+
     def __init__(self):
         super().__init__(player_group_r)
         self.j = 0
@@ -182,7 +184,7 @@ class PlayerRight(pygame.sprite.Sprite):
 
     def update(self, *args):
         if args:
-            self.image = load_image(players_images("right")[args[0] % len(players_images("right"))])
+            self.image = PlayerRight.image
         else:
             self.image = load_image(players_images("right")[self.j])
 
@@ -686,6 +688,7 @@ def game():
     points_r = points_l = 0
     ballstart = None
     ydar_key = False
+    text = '{}:{}'
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -728,7 +731,6 @@ def game():
                     ydar_key = True
                     a, b = player_l_obj.position()
                     ab, bb = ball_obj.position()
-                    print(a, b, ab, bb)
                     if abs(a + 50 - ab) <= 50 and abs(b + 100 - bb) <= 150:
                         ballstart = ab
                         shot = random.choice(range(3))
@@ -811,7 +813,6 @@ def game():
                 points_r += 1
             else:
                 points_l += 1
-            print(points_l, points_r)
             ball_key = 0
             clock.tick(5)
             clock.tick(5)
@@ -840,11 +841,15 @@ def game():
             player_r_obj.move(key)
         if key2 is not False:
             player_l_obj.move(key2)
-        print(points_l, points_r)
-        if points_l == 3:
+        font = pygame.font.Font(None, 100)
+        string = font.render(text.format(points_l, points_r), 1, pygame.Color("white"))
+        intro_rect = string.get_rect()
+        text_coord = 50
+        intro_rect.top = text_coord
+        intro_rect.x = 450
+        if points_l == 5:
             win_screen(player_l_obj.im())
-        if points_r == 3:
-            print(1)
+        if points_r == 5:
             win_screen(player_r_obj.im())
         screen.fill(pygame.Color("white"))
         back_ground.draw(screen)
@@ -853,6 +858,7 @@ def game():
         ball.draw(screen)
         setka.draw(screen)
         back_arrow.draw(screen)
+        screen.blit(string, intro_rect)
         if not pygame.mouse.get_focused():
             all_sprites.update()
         all_sprites.draw(screen)

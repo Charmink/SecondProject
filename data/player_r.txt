@@ -1,3 +1,4 @@
 rik_r.png
-rik_win.png
-bender_l.png
+bender_r.png
+deadpool_r.png
+winnie_r.png
