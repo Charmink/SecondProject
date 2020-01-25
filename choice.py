@@ -1,5 +1,4 @@
 import pygame
-import copy
 import os
 import random
 import sys
@@ -412,12 +411,14 @@ def mute():
         start.set_volume(0.1)
         back.set_volume(0.6)
         ex.set_volume(0.4)
+        shot_sound.set_volume(0.2)
     else:
         pygame.mixer.music.set_volume(0)
         choice_hero.set_volume(0)
         start.set_volume(0)
         back.set_volume(0)
         ex.set_volume(0)
+        shot_sound.set_volume(0)
 
 
 def main_menu():
@@ -590,10 +591,12 @@ def choice():
                   'First player                         Second player']
     screen.fill(pygame.Color("white"))
     clock = pygame.time.Clock()
-
     pygame.mixer.music.load(MUSIC['fon'])
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.1)
+    if sound_obj.cnt:
+        pygame.mixer.music.set_volume(0.1)
+    else:
+        pygame.mixer.music.set_volume(0)
 
     while True:
         for event in pygame.event.get():
@@ -728,20 +731,20 @@ def game():
                         jump2 = True
 
                 if event.key == pygame.K_SPACE:
-                    ydar_key = True
                     a, b = player_l_obj.position()
                     ab, bb = ball_obj.position()
                     if abs(a + 50 - ab) <= 50 and abs(b + 100 - bb) <= 150:
+                        ydar_key = True
                         ballstart = ab
                         shot = random.choice(range(3))
                         ball_key = 1
                         shot_sound.play()
 
                 if event.key == 305:
-                    ydar_key = True
                     a, b = player_r_obj.position()
                     ab, bb = ball_obj.position()
                     if abs(a + 50 - ab) <= 50 and abs(b + 100 - bb) <= 150:
+                        ydar_key = True
                         ballstart = ab
                         shot = random.choice(range(3))
                         ball_key = 2
@@ -804,12 +807,13 @@ def game():
                 else:
                     ball_key = 0
         ab, bb = ball_obj.position()
-        if ab in range(-5, 5) or ab in range(906, 911) and not ydar_key:
+        if ab in range(-30, 5) or ab in range(906, 931) and not ydar_key:
             ball_obj.fall()
             shot = 100
         ab, bb = ball_obj.position()
+        print(ab, bb)
         if bb >= 450:
-            if ab < 465:
+            if ab < 450:
                 points_r += 1
             else:
                 points_l += 1
@@ -869,7 +873,10 @@ def game():
 def win_screen(image):
     pygame.mixer.music.load(MUSIC['vika'])
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.5)
+    if sound_obj.cnt:
+        pygame.mixer.music.set_volume(0.5)
+    else:
+        pygame.mixer.music.set_volume(0)
     intro_text = ["The winner is"]
     clock = pygame.time.Clock()
     period = 0
